@@ -1,9 +1,6 @@
 <template>
 
-  <section class="score">
-    Jogador <span></span> x 
-   <span></span> Computador
-  </section>
+<ScoreBoard :winCount="this.winCount" :loseCount="this.loseCount"/>
 
   <template v-if="this.question">
     <h1 v-html="this.question"></h1>
@@ -23,49 +20,62 @@
       <h4 v-html="'&#10060;  Que pena, a resposta está errada. A resposta correta é ' + this.correctAnswer + '.'"></h4>
     </template>
     <button @click="this.getNewQuestion()" class="send" type="button">Próxima pergunta</button>
+    <button @click="reload()" class="send reload" type="button">Recarregue</button>
   </section>
 </template>
 
 <script>
 
+import ScoreBoard from './components/ScoreBoard.vue'
 
 export default {
   name: 'App',
+  components:{
+    ScoreBoard
+  },
+  
   data(){
     return{
       question:undefined,
       incorrectAnswers:undefined,
       correctAnswer:undefined,
       chosenAnswer:undefined,
-      answerSubmitted:false
+      answerSubmitted:false,
+      winCount:0,
+      loseCount:0
     }
   },
   methods:{
     submitAnswer(){
       if(!this.chosenAnswer){// or this.chosenAnswer==undefined
-        console.log('Pick one of the options')
+        
       }else{
         this.answerSubmitted=true
         if(this.chosenAnswer==this.correctAnswer){
-          console.log('You got it right')
+          this.winCount++
          
         }else{
-          console.log('You got it wrong')
+          this.loseCount++
          
         }
       }
     },
     getNewQuestion(){
-this.answerSubmitted=false
-this.chosenAnswer=undefined
-this.question= undefined
+      this.answerSubmitted=false
+      this.chosenAnswer=undefined
+      this.question= undefined
       
       this.axios.get('https://opentdb.com/api.php?amount=1&category=18').then((response) => {
-    this.question=response.data.results[0].question
-    this.incorrectAnswers=response.data.results[0].incorrect_answers
-    this.correctAnswer=response.data.results[0].correct_answer
-  console.log(response.data.results[0])
+      this.question=response.data.results[0].question
+      this.incorrectAnswers=response.data.results[0].incorrect_answers
+      this.correctAnswer=response.data.results[0].correct_answer
+  
 })
+    },
+    reload(){
+      this.winCount = 0
+      this.loseCount = 0
+      this.getNewQuestion()
     }
    
 
@@ -104,7 +114,7 @@ input[type='radio']{
 }
 
 button.send {
-  margin-top: 12px;
+  margin: 12px 10px;
   height: 40px;
   min-width: 120px;
   padding: 0 16px;
@@ -112,6 +122,11 @@ button.send {
   background-color: #1867c0;
   border: 1px solid #1867c0;
   cursor: pointer;
+}
+button.reload{
+  background-color:#f43;
+  border: 1px solid #f43;
+  
 }
 
 section.score {
